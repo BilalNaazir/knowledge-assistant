@@ -14,3 +14,11 @@ check:
 	uv run ruff format --check .
 	uv run mypy
 	uv run pytest -m "not integration"
+
+.PHONY: test test-unit test-integration check migrate migrate-down
+
+migrate:
+	uv run alembic upgrade head
+
+migrate-down:
+	uv run alembic downgrade -1
