@@ -1,0 +1,34 @@
+# Local development services. Production uses managed AWS services instead
+# (RDS, ElastiCache), so nothing here is meant to be deployed as-is.
+name: knowledge-assistant
+
+services:
+  postgres:
+    # Postgres with the pgvector extension built in (for embeddings, Phase 2).
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: assistant
+      POSTGRES_PASSWORD: assistant # local development only
+      POSTGRES_DB: assistant
+    ports:
+      - "127.0.0.1:5432:5432" # bound to localhost so other machines can't reach it
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assistant -d assistant"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_data:

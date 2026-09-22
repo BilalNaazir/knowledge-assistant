@@ -3,6 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,6 +19,13 @@ class Settings(BaseSettings):
     app_name: str = "knowledge-assistant"
     environment: Literal["local", "test", "staging", "production"] = "local"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+
+    # SecretStr hides the value if the settings object is ever printed or logged.
+    # The defaults match docker-compose.yml.
+    database_url: SecretStr = SecretStr(
+        "postgresql+asyncpg://assistant:assistant@localhost:5432/assistant"
+    )
+    readiness_timeout_seconds: float = 2.0
 
 
 @lru_cache
